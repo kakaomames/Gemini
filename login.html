@@ -3,190 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini Secure Chat (OAuth2)</title>
-    <link rel="icon" href="https://kakaomames.github.io/rei/logo.png">
-    <meta name="theme-color" content="#1a73e8">
-    
-    <!-- 💡 メタタグをいっぱい盛り込み！ -->
-    <meta name="description" content="Gemini Secure Chat with OAuth2 Client">
+    <meta name="description" content="Gemini Web Clientのログインページです。">
+    <meta name="keywords" content="Gemini, Chat, ログイン, カカオマメ">
     <meta name="author" content="カカオマメ">
-    <meta property="og:title" content="Gemini Secure Chat">
-    <meta property="og:description" content="OAuth2 authenticated Gemini chat client via GAS.">
+    <meta property="og:title" content="Gemini Chat - ログイン">
+    <meta property="og:description" content="Gemini Web Clientのログインページです。Googleアカウントで安全にサインインしましょう！">
     <meta property="og:image" content="https://kakaomames.github.io/rei/logo.png">
+    <meta property="og:url" content="https://kakaomames.github.io/">
+    <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Gemini Chat - ログイン">
+    <meta name="twitter:description" content="Gemini Web Clientのログインページです。">
+    <meta name="twitter:image" content="https://kakaomames.github.io/rei/logo.png">
+    <meta name="theme-color" content="#131314">
 
-    <!-- Google Identity Services (GIS) のスクリプト -->
+    <title>Gemini Chat - ログイン</title>
+    
+    <link rel="icon" href="https://kakaomames.github.io/rei/logo.png">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        :root {
-            --bg-color: #131314;
-            --chat-bg: #1e1f20;
-            --text-color: #e3e3e3;
-            --accent-color: #8ab4f8;
-            --user-bubble: #004a77;
-            --bot-bubble: #2d2e30;
-        }
         body {
             margin: 0; padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--bg-color); color: var(--text-color);
-            display: flex; flex-direction: column; height: 100vh;
+            background-color: #131314; color: #e3e3e3;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            height: 100vh;
         }
-        header {
-            padding: 16px; background-color: var(--chat-bg);
-            border-bottom: 1px solid #333;
-            display: flex; justify-content: space-between; align-items: center;
+        .login-card {
+            background-color: #1e1f20; padding: 40px; border-radius: 16px;
+            border: 1px solid #3c4043; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            max-width: 400px; width: 100%; box-sizing: border-box;
         }
-        header h1 { margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
-        header img { width: 24px; height: 24px; border-radius: 50%; }
+        img { width: 48px; height: 48px; margin-bottom: 16px; border-radius: 8px; }
+        h1 { font-size: 1.5rem; margin: 0 0 8px 0; }
+        p { color: #aaa; font-size: 0.9rem; margin: 0 0 24px 0; }
         .login-btn {
-            background: #fff; color: #000; border: none; padding: 8px 16px;
-            border-radius: 4px; font-weight: bold; cursor: pointer;
+            background: #8ab4f8; color: #000; border: none; padding: 12px 24px;
+            border-radius: 24px; font-weight: bold; font-size: 1rem; cursor: pointer;
+            transition: opacity 0.2s; width: 100%;
         }
-        .login-btn:disabled {
-            background: #555; color: #aaa; cursor: not-allowed;
-        }
-        #chat-container {
-            flex: 1; overflow-y: auto; padding: 20px;
-            display: flex; flex-direction: column; gap: 16px;
-            max-width: 800px; width: 100%; margin: 0 auto; box-sizing: border-box;
-        }
-        .message { padding: 12px 16px; border-radius: 12px; max-width: 80%; line-height: 1.5; word-break: break-word; white-space: pre-wrap; }
-        .message.user { background-color: var(--user-bubble); align-self: flex-end; border-bottom-right-radius: 2px; }
-        .message.bot { background-color: var(--bot-bubble); align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #3c4043; }
-        .input-container { padding: 16px; background-color: var(--chat-bg); border-top: 1px solid #333; display: flex; justify-content: center; }
-        .input-box { display: flex; max-width: 800px; width: 100%; background: #2a2b2c; border-radius: 24px; padding: 8px 16px; border: 1px solid #444; }
-        .input-box textarea { flex: 1; background: transparent; border: none; color: white; resize: none; outline: none; font-size: 1rem; max-height: 150px; padding: 6px 0; }
-        .input-box button { background: var(--accent-color); border: none; color: #000; font-weight: bold; padding: 6px 16px; border-radius: 16px; cursor: pointer; align-self: flex-end; }
-        .input-box button:disabled { background: #555; color: #888; cursor: not-allowed; }
+        .login-btn:hover { opacity: 0.9; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1><img src="https://kakaomames.github.io/rei/logo.png" alt="Logo"> Gemini Client (OAuth2)</h1>
-        <!-- 💡 ログインボタン -->
-        <button id="login-btn" class="login-btn">Googleログイン</button>
-    </header>
-
-    <div id="chat-container">
-        <div id="status-msg" class="message bot">まずは右上のボタンからGoogleログインを行ってください。</div>
-    </div>
-
-    <div class="input-container">
-        <div class="input-box">
-            <textarea id="user-input" rows="1" placeholder="メッセージを入力..." disabled></textarea>
-            <button id="send-btn" disabled>送信</button>
-        </div>
+    <div class="login-card">
+        <img src="https://kakaomames.github.io/rei/logo.png" alt="Logo">
+        <h1>Gemini Web Client</h1>
+        <p>安全な通信を行うため、Googleアカウントでサインインしてください。</p>
+        <button id="login-btn" class="login-btn">Googleアカウントでログイン</button>
     </div>
 
     <script>
-        // 💡 ご自身のGASのウェブアプリのURLに書き換えてね
-        const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/YOUR_GAS_DEPLOY_ID/exec';
-        
-        // 💡 Google Cloud Consoleで発行した「クライアントID」をここに貼り付けます
-        const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
-
-        const chatContainer = document.getElementById('chat-container');
-        const userInput = document.getElementById('user-input');
-        const sendBtn = document.getElementById('send-btn');
-        const loginBtn = document.getElementById('login-btn');
-        const statusMsg = document.getElementById('status-msg');
-
-        let chatHistory = [];
-        let oauthToken = null; // 💡 取得したアクセストークンを保持する変数
+        const GOOGLE_CLIENT_ID = '844740267850-8t1nurvc4857iu5v30sqcs670vhtjoc7.apps.googleusercontent.com';
         let tokenClient;
 
-        // GISの初期化
         window.onload = function () {
-            if (typeof google !== 'undefined' && google.accounts) {
-                tokenClient = google.accounts.oauth2.initTokenClient({
-                    client_id: GOOGLE_CLIENT_ID,
-                    scope: 'https://www.googleapis.com/auth/cloud-platform', // 必要に応じてスコープ調整
-                    callback: (tokenResponse) => {
-                        if (tokenResponse && tokenResponse.access_token) {
-                            oauthToken = tokenResponse.access_token;
-                            loginBtn.innerText = "ログイン済み";
-                            loginBtn.disabled = true;
-                            userInput.disabled = false;
-                            sendBtn.disabled = false;
-                            statusMsg.textContent = "ログインに成功しました！メッセージをどうぞ。🤖✨";
-                        }
-                    },
-                });
-            } else {
-                statusMsg.textContent = "Google認証ライブラリの読み込みに失敗しました。";
-            }
+            console.log("OAuth2 tokenClientの初期化を開始します。");
+            
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: GOOGLE_CLIENT_ID,
+                scope: 'https://www.googleapis.com/auth/drive.file',
+                callback: (tokenResponse) => {
+                    console.log("コールバックを受信しました。tokenResponse:", tokenResponse);
+                    
+                    if (tokenResponse && tokenResponse.access_token) {
+                        console.log("取得したトークンをセッションストレージに保存します。");
+                        sessionStorage.setItem('oauth_token', tokenResponse.access_token);
+                        
+                        console.log("保存完了。チャットメイン画面（index.html）へ遷移します！");
+                        window.location.href = 'index.html';
+                    } else {
+                        console.log("トークンの取得に失敗しました。レスポンスを確認してください。");
+                    }
+                },
+            });
+            console.log("tokenClientの初期化が完了しました。");
         };
 
-        // ログインボタンのクリックイベント
-        loginBtn.addEventListener('click', () => {
-            if (tokenClient) {
-                tokenClient.requestAccessToken();
-            } else {
-                alert("認証クライアントが初期化されていません。");
-            }
-        });
-
-        function appendMessage(sender, text) {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `message ${sender}`;
-            msgDiv.textContent = text;
-            chatContainer.appendChild(msgDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        async function handleSend() {
-            const text = userInput.value.trim();
-            if (!text || !oauthToken) return;
-
-            appendMessage('user', text);
-            userInput.value = '';
-            userInput.style.height = 'auto';
-
-            chatHistory.push({ role: "user", parts: [{ text: text }] });
-
-            const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'message bot';
-            loadingDiv.textContent = '思考中... 🧭';
-            chatContainer.appendChild(loadingDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-
-            try {
-                const response = await fetch(GAS_WEB_APP_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'text/plain',
-                        // 💡 取得したOAuth2トークンをヘッダーに載せてGASに送る
-                        'Authorization': 'Bearer ' + oauthToken
-                    },
-                    body: JSON.stringify({ contents: chatHistory })
-                });
-
-                const data = await response.json();
-                chatContainer.removeChild(loadingDiv);
-
-                if (data.candidates && data.candidates[0].content.parts[0].text) {
-                    const reply = data.candidates[0].content.parts[0].text;
-                    appendMessage('bot', reply);
-                    chatHistory.push({ role: "model", parts: [{ text: reply }] });
-                } else {
-                    appendMessage('bot', 'エラー: ' + JSON.stringify(data));
-                    chatHistory.pop();
-                }
-            } catch (err) {
-                chatContainer.removeChild(loadingDiv);
-                appendMessage('bot', '通信エラー: ' + err.message);
-                chatHistory.pop();
-            }
-        }
-
-        sendBtn.addEventListener('click', handleSend);
-        userInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
-        });
-        userInput.addEventListener('input', function() {
-            this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px';
+        document.getElementById('login-btn').addEventListener('click', () => {
+            console.log("ログインボタンがクリックされました。アクセストークンを要求します。");
+            tokenClient.requestAccessToken();
         });
     </script>
 </body>
