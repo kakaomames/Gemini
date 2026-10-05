@@ -46,17 +46,6 @@
             width: 24px;
             height: 24px;
         }
-        .settings {
-            display: flex;
-            gap: 8px;
-        }
-        .settings input {
-            background: #2a2b2c;
-            border: 1px solid #444;
-            color: white;
-            padding: 6px 10px;
-            border-radius: 4px;
-        }
         #chat-container {
             flex: 1;
             overflow-y: auto;
@@ -134,13 +123,10 @@
 
     <header>
         <h1><img src="https://kakaomames.github.io/rei/logo.png" alt="Logo"> Gemini Web Client</h1>
-        <div class="settings">
-            <input type="password" id="api-key" placeholder="Gemini API Key を入力" />
-        </div>
     </header>
 
     <div id="chat-container">
-        <div class="message bot">こんにちは！APIキーを入力してメッセージを送信してください。</div>
+        <div class="message bot">こんにちは！メッセージを入力して送信してください（コンテキスト対応）。</div>
     </div>
 
     <div class="input-container">
