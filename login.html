@@ -63,7 +63,8 @@
             
             tokenClient = google.accounts.oauth2.initTokenClient({
                 client_id: GOOGLE_CLIENT_ID,
-                scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/youtube',
+                scope: 'https://www.googleapis.com/auth/drive.file',
+                include_granted_scopes: false,
                 callback: (tokenResponse) => {
                     console.log("コールバックを受信しました。tokenResponse:", tokenResponse);
                     
