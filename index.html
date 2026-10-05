@@ -231,6 +231,94 @@
             this.style.height = (this.scrollHeight) + 'px';
         });</script-->
     <script>
+        // https://script.google.com/macros/s/AKfycbzXHG-xW_cznmu-5c92X-22aR7r31G2NEivpxR9HWjr29C_5TrQiV9uK5p3Y7QcWsv5/exec
+        // 💡 1-③で取得したGASのウェブアプリURLに差し替えてください
+        const GAS_WEB_APP_URL = 'https://google.com';
+
+        const chatContainer = document.getElementById('chat-container');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+
+        // 会話の履歴（コンテキスト）を保持する配列
+        let chatHistory = [];
+
+        function appendMessage(sender, text) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${sender}`;
+            msgDiv.textContent = text;
+            chatContainer.appendChild(msgDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            console.log(`[missionLog] ACTION: メッセージ描画完了 (${sender})`);
+        }
+
+        async function handleSend() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            appendMessage('user', text);
+            userInput.value = '';
+            userInput.style.height = 'auto';
+
+            // ユーザーの発言をコンテキストに追加
+            chatHistory.push({
+                role: "user",
+                parts: [{ text: text }]
+            });
+
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message bot';
+            loadingDiv.textContent = '思考中...';
+            chatContainer.appendChild(loadingDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            try {
+                // Geminiに直接ではなく、GASのURLに対してPOSTする
+                const response = await fetch(GAS_WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' }, // GASの仕様上、CORS回避のためtext/plainが安定します
+                    body: JSON.stringify({
+                        contents: chatHistory
+                    })
+                });
+
+                const data = await response.json();
+                chatContainer.removeChild(loadingDiv);
+
+                // GAS経由で返ってきたGeminiの応答を解析
+                if (data.candidates && data.candidates[0].content.parts[0].text) {
+                    const reply = data.candidates[0].content.parts[0].text;
+                    appendMessage('bot', reply);
+
+                    // モデルの返答もコンテキストに追加
+                    chatHistory.push({
+                        role: "model",
+                        parts: [{ text: reply }]
+                    });
+                } else {
+                    appendMessage('bot', 'エラー: レスポンスの解析に失敗しました。\n' + JSON.stringify(data));
+                    chatHistory.pop();
+                }
+            } catch (err) {
+                chatContainer.removeChild(loadingDiv);
+                appendMessage('bot', '通信エラーが発生しました: ' + err.message);
+                chatHistory.pop();
+            }
+        }
+
+        sendBtn.addEventListener('click', handleSend);
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+            }
+        });
+
+        userInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    </script>
+    <!--v2+--script>
         const apiKeyInput = document.getElementById('api-key');
 const chatContainer = document.getElementById('chat-container');
 const userInput = document.getElementById('user-input');
@@ -328,6 +416,6 @@ userInput.addEventListener('input', function() {
     this.style.height = (this.scrollHeight) + 'px';
 });
 
-    </script>
+</script-->
 </body>
 </html>
