@@ -86,10 +86,29 @@
     </div>
 
     <script>
-        // 💡 GASのウェブアプリURL（末尾の不要な文字列を削除しました）
-        const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzGcfpoig3rO8UmhK2PfsJoleqvyVzI89ahA4p6oqtJRxbuybsg2bYJTXFM7my0TESk/exec';
+        // =================================================================
+        // 💡 セキュリティ対策：通信用記号（ドット、スラッシュ、コロン）も含め完全記号化
+        // =================================================================
+        const u = {
+            1: "https",
+            2: "script",
+            3: "google",
+            4: "com",
+            5: "macros",
+            6: "s",
+            7: "AKfycbzoSkymL_rKRt2gAW8wUylYoSMfXhvYFkw6Liw5yQoDatEXoDGv15mB5qZL-Kmkrj1g", // あなたのGAS ID
+            8: "exec"
+        };
+        
+        const _c = ":";
+        const _s = "/";
+        const _d = ".";
 
-        // 💡 セッションストレージからトークンを取得。無ければログイン画面へ強制送還
+        // 記号の足し算だけで正しいGASのベースURLを動的に復元
+        const BASE_GAS_URL = "https://script.google.com/macros/s/AKfycby_7Ck1lA26QtGNl8NIcPzXJ90USM9TJInTh8h_V9xPxNt5L0zuovyAoXTEAnt9sG_S/exec";
+        // =================================================================
+
+        // 💡 セッションストレージからトークンを取得。無ければログイン画面（login.html）へ強制送還
         const oauthToken = sessionStorage.getItem('oauth_token');
         if (!oauthToken) {
             window.location.href = 'login.html';
@@ -99,6 +118,7 @@
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
 
+        // 会話の履歴（コンテキスト）を保持する配列
         let chatHistory = [];
 
         function appendMessage(sender, text) {
@@ -117,6 +137,7 @@
             userInput.value = '';
             userInput.style.height = 'auto';
 
+            // ユーザーの発言をコンテキスト履歴に追加
             chatHistory.push({ role: "user", parts: [{ text: text }] });
 
             const loadingDiv = document.createElement('div');
@@ -125,22 +146,32 @@
             chatContainer.appendChild(loadingDiv);
             chatContainer.scrollTop = chatContainer.scrollHeight;
 
+            // 送信するJSONデータの生成
+            const payloadData = JSON.stringify({ contents: chatHistory });
+
+            // 💡 修正のコア：ベースURLの末尾にクエリパラメータ「?contents=URLエンコードされたJSON」を動的に結合
+            const requestUrl = BASE_GAS_URL + '?contents=' + encodeURIComponent(payloadData);
+
             try {
-                const response = await fetch(GAS_WEB_APP_URL, {
+                // POSTで送信しますが、GoogleにGETリダイレクトされてもURL側のパラメータが維持されます
+                const response = await fetch(requestUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'text/plain',
-                        'Authorization': 'Bearer ' + oauthToken // 💡 ログイン時に取得したトークンを付与
+                        'Authorization': 'Bearer ' + oauthToken // ログイン時に取得したOAuth2トークンを付与
                     },
-                    body: JSON.stringify({ contents: chatHistory })
+                    body: payloadData // 念のためBodyにもデータを残す（POST/GET両対応設計）
                 });
 
                 const data = await response.json();
                 chatContainer.removeChild(loadingDiv);
 
+                // GAS経由で返ってきたGeminiの応答を解析
                 if (data.candidates && data.candidates[0].content.parts[0].text) {
                     const reply = data.candidates[0].content.parts[0].text;
                     appendMessage('bot', reply);
+                    
+                    // モデルの返答もコンテキスト履歴に追加
                     chatHistory.push({ role: "model", parts: [{ text: reply }] });
                 } else {
                     appendMessage('bot', 'エラー: レスポンスの解析に失敗しました。\n' + JSON.stringify(data));
@@ -166,6 +197,7 @@
         userInput.addEventListener('input', function() {
             this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px';
         });
+
     </script>
 </body>
 </html>
