@@ -3,130 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- 基本的なSEOメタタグ -->
     <title>Gemini Web Chat</title>
-    <!-- 指定のロゴとメタタグ -->
-    <link rel="icon" href="https://kakaomames.github.io/rei/logo.png">
-    <meta name="description" content="GitHub Pagesで動く軽量Geminiチャットクライアント">
+    <meta name="description" content="GASをプロキシにしたセキュアな軽量Geminiチャットクライアント">
+    <meta name="keywords" content="Gemini, AI, チャット, GAS, WebClient, カカオマメ">
+    <meta name="author" content="カカオマメ">
+    
+    <!-- OGP (Open Graph Protocol) - SNS等でのシェア用設定 -->
+    <meta property="og:title" content="Gemini Web Chat">
+    <meta property="og:description" content="GASをプロキシにしたセキュアな軽量Geminiチャットクライアント">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kakaomames.github.io/rei/">
+    <meta property="og:image" content="https://kakaomames.github.io/rei/logo.png">
+    <meta property="og:site_name" content="Gemini programming隊">
+    
+    <!-- Twitterカード設定 -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Gemini Web Chat">
+    <meta name="twitter:description" content="GASをプロキシにしたセキュアな軽量Geminiチャットクライアント">
+    <meta name="twitter:image" content="https://kakaomames.github.io/rei/logo.png">
+    
+    <!-- UI/UX関連のメタタグ -->
     <meta name="theme-color" content="#1a73e8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Gemini Chat">
+
+    <!-- アイコン -->
+    <link rel="icon" href="https://kakaomames.github.io/rei/logo.png">
+    <link rel="apple-touch-icon" href="https://kakaomames.github.io/rei/logo.png">
+
     <style>
         :root {
-            --bg-color: #131314;
-            --chat-bg: #1e1f20;
-            --text-color: #e3e3e3;
-            --accent-color: #8ab4f8;
-            --user-bubble: #004a77;
-            --bot-bubble: #2d2e30;
+            --bg-color: #131314; --chat-bg: #1e1f20; --text-color: #e3e3e3;
+            --accent-color: #8ab4f8; --user-bubble: #004a77; --bot-bubble: #2d2e30;
         }
         body {
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
+            margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-color); color: var(--text-color);
+            display: flex; flex-direction: column; height: 100vh;
         }
         header {
-            padding: 16px;
-            background-color: var(--chat-bg);
-            border-bottom: 1px solid #333;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 16px; background-color: var(--chat-bg); border-bottom: 1px solid #333;
+            display: flex; justify-content: space-between; align-items: center;
         }
-        header h1 {
-            margin: 0;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        header img {
-            width: 24px;
-            height: 24px;
+        header h1 { margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
+        header img { width: 24px; height: 24px; }
+        .logout-btn {
+            background: transparent; color: #ff6b6b; border: 1px solid #ff6b6b;
+            padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;
         }
         #chat-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            max-width: 800px;
-            width: 100%;
-            margin: 0 auto;
-            box-sizing: border-box;
+            flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column;
+            gap: 16px; max-width: 800px; width: 100%; margin: 0 auto; box-sizing: border-box;
         }
-        .message {
-            padding: 12px 16px;
-            border-radius: 12px;
-            max-width: 80%;
-            line-height: 1.5;
-            word-break: break-word;
-            white-space: pre-wrap;
-        }
-        .message.user {
-            background-color: var(--user-bubble);
-            align-self: flex-end;
-            border-bottom-right-radius: 2px;
-        }
-        .message.bot {
-            background-color: var(--bot-bubble);
-            align-self: flex-start;
-            border-bottom-left-radius: 2px;
-            border: 1px solid #3c4043;
-        }
-        .input-container {
-            padding: 16px;
-            background-color: var(--chat-bg);
-            border-top: 1px solid #333;
-            display: flex;
-            justify-content: center;
-        }
-        .input-box {
-            display: flex;
-            max-width: 800px;
-            width: 100%;
-            background: #2a2b2c;
-            border-radius: 24px;
-            padding: 8px 16px;
-            border: 1px solid #444;
-        }
-        .input-box textarea {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: white;
-            resize: none;
-            outline: none;
-            font-size: 1rem;
-            max-height: 150px;
-            padding: 6px 0;
-        }
-        .input-box button {
-            background: var(--accent-color);
-            border: none;
-            color: #000;
-            font-weight: bold;
-            padding: 6px 16px;
-            border-radius: 16px;
-            cursor: pointer;
-            align-self: flex-end;
-        }
-        .input-box button:hover {
-            opacity: 0.9;
-        }
+        .message { padding: 12px 16px; border-radius: 12px; max-width: 80%; line-height: 1.5; word-break: break-word; white-space: pre-wrap; }
+        .message.user { background-color: var(--user-bubble); align-self: flex-end; border-bottom-right-radius: 2px; }
+        .message.bot { background-color: var(--bot-bubble); align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #3c4043; }
+        .input-container { padding: 16px; background-color: var(--chat-bg); border-top: 1px solid #333; display: flex; justify-content: center; }
+        .input-box { display: flex; max-width: 800px; width: 100%; background: #2a2b2c; border-radius: 24px; padding: 8px 16px; border: 1px solid #444; }
+        .input-box textarea { flex: 1; background: transparent; border: none; color: white; resize: none; outline: none; font-size: 1rem; max-height: 150px; padding: 6px 0; }
+        .input-box button { background: var(--accent-color); border: none; color: #000; font-weight: bold; padding: 6px 16px; border-radius: 16px; cursor: pointer; align-self: flex-end; }
     </style>
 </head>
 <body>
 
     <header>
         <h1><img src="https://kakaomames.github.io/rei/logo.png" alt="Logo"> Gemini Web Client</h1>
+        <button id="logout-btn" class="logout-btn">ログアウト</button>
     </header>
 
     <div id="chat-container">
-        <div class="message bot">こんにちは！メッセージを入力して送信してください（コンテキスト対応）。</div>
+        <div class="message bot">こんにちは！メッセージを入力して送信してください（ドライブ記憶・OAuth2対応）。</div>
     </div>
 
     <div class="input-container">
@@ -136,96 +85,20 @@
         </div>
     </div>
 
-    <!--v1--script>
-        const apiKeyInput = document.getElementById('api-key');
-        const chatContainer = document.getElementById('chat-container');
-        const userInput = document.getElementById('user-input');
-        const sendBtn = document.getElementById('send-btn');
-
-        // ローカルストレージからAPIキーを復元
-        if(localStorage.getItem('gemini_api_key')) {
-            apiKeyInput.value = localStorage.getItem('gemini_api_key');
-        }
-        apiKeyInput.addEventListener('input', () => {
-            localStorage.setItem('gemini_api_key', apiKeyInput.value.trim());
-        });
-
-        function appendMessage(sender, text) {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `message ${sender}`;
-            msgDiv.textContent = text;
-            chatContainer.appendChild(msgDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-            console.log(`[missionLog] ACTION: メッセージ描画完了 (${sender})`);
-        }
-
-        async function handleSend() {
-            const text = userInput.value.trim();
-            const apiKey = apiKeyInput.value.trim();
-            if (!text) return;
-            if (!apiKey) {
-                alert('APIキーを入力してください！');
-                return;
-            }
-
-            appendMessage('user', text);
-            userInput.value = '';
-            userInput.style.height = 'auto';
-
-            const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'message bot';
-            loadingDiv.textContent = '思考中...';
-            chatContainer.appendChild(loadingDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-
-            try {
-                // Gemini API (gemini-2.5-flash または gemini-1.5-flashなど) 呼び出し
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: text }] }]
-                    })
-                });
-
-                const data = await response.json();
-                chatContainer.removeChild(loadingDiv);
-
-                if (data.candidates && data.candidates[0].content.parts[0].text) {
-                    const reply = data.candidates[0].content.parts[0].text;
-                    appendMessage('bot', reply);
-                } else {
-                    appendMessage('bot', 'エラー: レスポンスの解析に失敗しました。\n' + JSON.stringify(data));
-                }
-            } catch (err) {
-                chatContainer.removeChild(loadingDiv);
-                appendMessage('bot', '通信エラーが発生しました: ' + err.message);
-            }
-        }
-
-        sendBtn.addEventListener('click', handleSend);
-        userInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSend();
-            }
-        });
-
-        // テキストエリアの自動伸縮
-        userInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
-        });</script-->
     <script>
-        // https://script.google.com/macros/s/AKfycbzXHG-xW_cznmu-5c92X-22aR7r31G2NEivpxR9HWjr29C_5TrQiV9uK5p3Y7QcWsv5/exec
-        // 💡 1-③で取得したGASのウェブアプリURLに差し替えてください
+        // 💡 GASのウェブアプリURL（末尾の不要な文字列を削除しました）
         const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzoSkymL_rKRt2gAW8wUylYoSMfXhvYFkw6Liw5yQoDatEXoDGv15mB5qZL-Kmkrj1g/exec';
 
+        // 💡 セッションストレージからトークンを取得。無ければログイン画面へ強制送還
+        const oauthToken = sessionStorage.getItem('oauth_token');
+        if (!oauthToken) {
+            window.location.href = 'login.html';
+        }
+
         const chatContainer = document.getElementById('chat-container');
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
 
-        // 会話の履歴（コンテキスト）を保持する配列
         let chatHistory = [];
 
         function appendMessage(sender, text) {
@@ -234,7 +107,6 @@
             msgDiv.textContent = text;
             chatContainer.appendChild(msgDiv);
             chatContainer.scrollTop = chatContainer.scrollHeight;
-            console.log(`[missionLog] ACTION: メッセージ描画完了 (${sender})`);
         }
 
         async function handleSend() {
@@ -245,11 +117,7 @@
             userInput.value = '';
             userInput.style.height = 'auto';
 
-            // ユーザーの発言をコンテキストに追加
-            chatHistory.push({
-                role: "user",
-                parts: [{ text: text }]
-            });
+            chatHistory.push({ role: "user", parts: [{ text: text }] });
 
             const loadingDiv = document.createElement('div');
             loadingDiv.className = 'message bot';
@@ -258,28 +126,22 @@
             chatContainer.scrollTop = chatContainer.scrollHeight;
 
             try {
-                // Geminiに直接ではなく、GASのURLに対してPOSTする
                 const response = await fetch(GAS_WEB_APP_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'text/plain' }, // GASの仕様上、CORS回避のためtext/plainが安定します
-                    body: JSON.stringify({
-                        contents: chatHistory
-                    })
+                    headers: {
+                        'Content-Type': 'text/plain',
+                        'Authorization': 'Bearer ' + oauthToken // 💡 ログイン時に取得したトークンを付与
+                    },
+                    body: JSON.stringify({ contents: chatHistory })
                 });
 
                 const data = await response.json();
                 chatContainer.removeChild(loadingDiv);
 
-                // GAS経由で返ってきたGeminiの応答を解析
                 if (data.candidates && data.candidates[0].content.parts[0].text) {
                     const reply = data.candidates[0].content.parts[0].text;
                     appendMessage('bot', reply);
-
-                    // モデルの返答もコンテキストに追加
-                    chatHistory.push({
-                        role: "model",
-                        parts: [{ text: reply }]
-                    });
+                    chatHistory.push({ role: "model", parts: [{ text: reply }] });
                 } else {
                     appendMessage('bot', 'エラー: レスポンスの解析に失敗しました。\n' + JSON.stringify(data));
                     chatHistory.pop();
@@ -291,117 +153,19 @@
             }
         }
 
+        // ログアウト処理
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            sessionStorage.removeItem('oauth_token');
+            window.location.href = 'login.html';
+        });
+
         sendBtn.addEventListener('click', handleSend);
         userInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSend();
-            }
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
         });
-
         userInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
+            this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px';
         });
     </script>
-    <!--v2+--script>
-        const apiKeyInput = document.getElementById('api-key');
-const chatContainer = document.getElementById('chat-container');
-const userInput = document.getElementById('user-input');
-const sendBtn = document.getElementById('send-btn');
-
-// --- 💡 追加：会話の履歴（コンテキスト）を保持する配列 ---
-let chatHistory = [];
-
-if(localStorage.getItem('gemini_api_key')) {
-    apiKeyInput.value = localStorage.getItem('gemini_api_key');
-}
-apiKeyInput.addEventListener('input', () => {
-    localStorage.setItem('gemini_api_key', apiKeyInput.value.trim());
-});
-
-function appendMessage(sender, text) {
-    const msgDiv = document.createElement('div');
-    msgDiv.className = `message ${sender}`;
-    msgDiv.textContent = text;
-    chatContainer.appendChild(msgDiv);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-    console.log(`[missionLog] ACTION: メッセージ描画完了 (${sender})`);
-}
-
-async function handleSend() {
-    const text = userInput.value.trim();
-    const apiKey = apiKeyInput.value.trim();
-    if (!text) return;
-    if (!apiKey) {
-        alert('APIキーを入力してください！');
-        return;
-    }
-
-    appendMessage('user', text);
-    userInput.value = '';
-    userInput.style.height = 'auto';
-
-    // --- 💡 修正：ユーザーの入力を履歴に追加 ---
-    chatHistory.push({
-        role: "user",
-        parts: [{ text: text }]
-    });
-
-    const loadingDiv = document.createElement('div');
-    loadingDiv.className = 'message bot';
-    loadingDiv.textContent = '思考中...';
-    chatContainer.appendChild(loadingDiv);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-
-    try {
-        const response = await fetch(`https://googleapis.com{apiKey}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            // --- 💡 修正：単発のテキストではなく、履歴（配列）をそのまま渡す ---
-            body: JSON.stringify({
-                contents: chatHistory
-            })
-        });
-
-        const data = await response.json();
-        chatContainer.removeChild(loadingDiv);
-
-        if (data.candidates && data.candidates[0].content.parts[0].text) {
-            const reply = data.candidates[0].content.parts[0].text;
-            appendMessage('bot', reply);
-
-            // --- 💡 追加：モデル（AI）の返答も履歴に追加 ---
-            chatHistory.push({
-                role: "model",
-                parts: [{ text: reply }]
-            });
-
-        } else {
-            appendMessage('bot', 'エラー: レスポンスの解析に失敗しました。\n' + JSON.stringify(data));
-            chatHistory.pop(); // エラー時は直前のユーザー発言を履歴から削除して整合性を保つ
-        }
-    } catch (err) {
-        chatContainer.removeChild(loadingDiv);
-        appendMessage('bot', '通信エラーが発生しました: ' + err.message);
-        chatHistory.pop(); // エラー時は直前のユーザー発言を履歴から削除
-    }
-}
-
-// （以下、イベントリスナーの登録と自動伸縮のコードは元のままでOKです）
-sendBtn.addEventListener('click', handleSend);
-userInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        handleSend();
-    }
-});
-
-userInput.addEventListener('input', function() {
-    this.style.height = 'auto';
-    this.style.height = (this.scrollHeight) + 'px';
-});
-
-</script-->
 </body>
 </html>
